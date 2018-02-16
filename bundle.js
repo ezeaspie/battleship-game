@@ -1,4 +1,4 @@
-const shipFactory = (length, location) => {
+const shipFactory = (length, name) => {
    const generateShipArray = () => {
      let shipArray = [];
      for(i=0 ; i < length ; i++){
@@ -31,7 +31,7 @@ const shipFactory = (length, location) => {
    }
    const checkStatus = () => {return shipStatus};
 
-   return {isSunk,hit,checkStatus,length};
+   return {isSunk,hit,checkStatus,length, name};
 
 }
 
@@ -42,13 +42,14 @@ const gameboardFactory = () => {
 
   let damageCounter = 0;
 
-  const ptBoat = shipFactory(2);
-  const submarine = shipFactory(3);
-  const destroyer = shipFactory(3);
-  const battleship = shipFactory(4);
-  const carrier = shipFactory(5);
+  const ptBoat = shipFactory(2, "Patrol Boat");
+  const submarine = shipFactory(3, "Submarine");
+  const destroyer = shipFactory(3, "Destroyer");
+  const battleship = shipFactory(4, "BattleShip");
+  const carrier = shipFactory(5, "Aircraft Carrier");
+  const holder = shipFactory(1, "Keep");
 
-  shipsArray.push(ptBoat,submarine,destroyer,battleship,carrier);
+  shipsArray.push(ptBoat,submarine,destroyer,battleship,carrier,holder);
 
   const generateGameboard = () => {
     let thisArray = [];
@@ -71,9 +72,15 @@ const gameboardFactory = () => {
             if(playerGameboard[coordY][coordX + i] != ""){
               return false;
             }
+            else{
+              continue;
+            }
           }
           else {
             if(playerGameboard[coordY + i][coordX] != ""){
+              return false;
+            }
+            else {
               return false;
             }
           }
@@ -95,7 +102,7 @@ const gameboardFactory = () => {
           return playerGameboard;
         }
         else {
-          return "Not a Valid Placement!";
+          return false;
         }
       }
       else {
@@ -106,7 +113,7 @@ const gameboardFactory = () => {
           return playerGameboard;
         }
         else {
-          return "Not a Valid Placement!";
+          return false;
         }
       }
     }
@@ -133,11 +140,12 @@ const gameboardFactory = () => {
     }
     else{
       playerGameboard[coordY][coordX] = "x";
-      return [coordY][coordX];
+      return false;
     }
   }
 
   const checkGameOver = () => {
+    /*
     let arrayCheck = [];
     for(i = 0 ; i<shipsArray.length ; i++){
       if(shipsArray[i].isSunk()){
@@ -152,44 +160,311 @@ const gameboardFactory = () => {
     }
     else {
       return false;
+    }*/
+    if (damageCounter == 15){
+      return true;
+    }
+    else {
+      return false;
     }
   }
 
 
-  return {playerGameboard,enemyGameboard, placeShip, checkAttackValidity, recieveAttack, checkGameOver};
+  return {playerGameboard,enemyGameboard, placeShip, checkAttackValidity, recieveAttack, checkGameOver, shipsArray};
 }
 
-const playerFactory = (type) => {
-  const sendAttack = (coordX, coordY, playerToAttack, currentPlayer) => {
-    if(playerToAtttack.checkAttackValidity(coordX,coordY)){
-      playerToAttack.recieveAttack(coordX,coordY);
+const playerFactory = (id) => {
+  const sendAttack = (coordX, coordY, playerToAttack, currentPlayer, situationVar) => {
+
+    if(playerToAttack.gameboard.playerGameboard[coordY][coordX] == "x" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "s"){
+      console.log("you already hit that position.");
+      return false;
     }
-    else if (playerToAtttack.checkAttackValidity(coordX,coordY) != true ||playerToAtttack.checkAttackValidity(coordX,coordY) != false ){
-      currentPlayer.enemyGameboard()
+    else if (playerToAttack.gameboard.playerGameboard[coordY][coordX] == "") {
+      currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "x";
+      playerToAttack.gameboard.playerGameboard[coordY][coordX] = "x";
+      console.log("miss");
+      return true;
+    }
+    else {
+      playerToAttack.gameboard.recieveAttack(coordX,coordY);
+      currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "s";
+      console.log("Its a hit!");
+      return true;
     }
   }
+
+  const felicia = (situation) => {
+    const victoryMessages = ["Great job! We sunk all their ships!", "We did it! Their fleet is resting happy at the bottom of the sea!", "Captain, we've completely defeated the enemy!"];
+    const defeatMessages = ["They sunk all of our ships...", "We've lost all out ships sir.", "That's it. Our last ship gone. We lost captain."];
+    const missMessages = ["Didn't hit anything on that one.", "Missed shot captain.", "Looks like we missed."];
+    const enemyHitMessages = ["Looks like we hit something!", "That one was spot on!", "We've hit a ship!"];
+    const recieveAttackMessages = ["One of our ships have been hit!","Took some damage on our ships captain.","Critical hit on part of our fleet sir!"];
+    const samePosMessages = ["We've already tried there captain.", "Let's try hitting someplace else.", "Last time we shot there we got nothing."];
+
+    const randomInt = (min,max) => {
+      return Math.floor(Math.random()*(max-min+1)+min);
+    }
+
+    if(situation == 0){
+      return victoryMessages[randomInt(0,2)];
+    }
+    if(situation == 1){
+      return defeatMessages[randomInt(0,2)];
+    }
+    if(situation == 2){
+      return missMessages[randomInt(0,2)];
+    }
+    if(situation == 3){
+      return enemyHitMessages[randomInt(0,2)];
+    }
+    if(situation == 4){
+      return recieveAttackMessages[randomInt[0,2]];
+    }
+    if(situation == 5){
+      return samePosMessages[randomInt(0,2)];
+    }
+  }
+
+  const nicolas = (situation) => {
+    const victoryMessages = ["Looks like we won. They're all down.", "We're just too powerful for their fleet. We won.", "Nice one sir, looks like they can't go on."];
+    const defeatMessages = ["We have no ships left. We lost.", "And there goes out last vessel.", "We have nothing left sir, it's time to surrender."];
+    const missMessages = ["That one missed.", "Missed. Waste of ammo.", "Nothing there. We'll get them next time."];
+    const enemyHitMessages = ["Direct hit on one of their ships!", "We got one. Try hitting around there. Might be more ships around.", "Straight into the hull of one of their ships!"];
+    const recieveAttackMessages = ["They hit us sir. Let's hit them back.","Enemy got a nice shot on one of our ships.","Careful sir, we just took a cannon to one of our vessels."];
+    const samePosMessages = ["We've already hit there. Don't you remember?", "I don't think there's anything there.", "Somewhere else please."];
+
+    const randomInt = (min,max) => {
+      return Math.floor(Math.random()*(max-min+1)+min);
+    }
+
+    if(situation == 0){
+      return victoryMessages[randomInt(0,2)];
+    }
+    if(situation == 1){
+      return defeatMessages[randomInt(0,2)];
+    }
+    if(situation == 2){
+      return missMessages[randomInt(0,2)];
+    }
+    if(situation == 3){
+      return enemyHitMessages[randomInt(0,2)];
+    }
+    if(situation == 4){
+      return recieveAttackMessages[randomInt[0,2]];
+    }
+    if(situation == 5){
+      return samePosMessages[randomInt(0,2)];
+    }
+  }
+
+  let deputy;
+
+  if(id==0){
+    deputy = felicia;
+  }
+  else{
+    deputy = nicolas;
+  }
+
+  return {sendAttack, deputy};
 }
 
 const gameLoop = () => {
-  let player1 = {"player":playerFactory(), "gameboard": gameboardFactory()};
-  let player2 = {"player":playerFactory(), "gameboard": gameboardFactory()};
 
-  const renderPlayerGameboard = (player) => {
-    let html = `"<div class="gameBoard">`;
+  const $ = (selector) => document.querySelector(selector);
+  //Create Players
+
+  let playerOne = {"name": "playerOne", "player":playerFactory(0), "gameboard": gameboardFactory()};
+  let playerTwo = {"name" : "playerTwo", "player":playerFactory(1), "gameboard": gameboardFactory()};
+
+  //function to render the gameboards view (both player and enemy views)
+
+  const renderPlayerView = (player,opponent) => {
+    let html = `
+    <div class="gameBoard">`;
     for (i=0 ; i<player.gameboard.playerGameboard.length ; i++){
-      html += `
-        <div class="row">
-      `
-      for (p=0 ; p=player.gameboard.playerGameboard[i].length ; p++){
-        html += `
-          <span class="cell" data-coordX ="${p}" data-coordY = "${i}"></span>
-        `
+      html += `<div class="row">`
+      for (p=0 ; p<player.gameboard.playerGameboard[i].length ; p++){
+        html += `<span class="cell" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.playerGameboard[i][p]}</span>`
       }
       html += `</div>`;
     }
     html += `</div>`;
-    return html;
+    $("#" + player.name + "Board").innerHTML = html;
+
+    let enemyHtml = `
+    <div class="gameBoard">`;
+    for (i=0 ; i<player.gameboard.enemyGameboard.length ; i++){
+      enemyHtml += `<div class="row">`
+      for (p=0 ; p<player.gameboard.enemyGameboard[i].length ; p++){
+        enemyHtml += `<span class="cell" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.enemyGameboard[i][p]}</span>`
+      }
+      enemyHtml += `</div>`;
+    }
+    enemyHtml += `</div>`;
+    $("#" + player.name + "EnemyView").innerHTML = enemyHtml;
+
+    let cells = document.querySelectorAll("#" + player.name + "EnemyView .cell");
+
+    const addEventListenersToCells = (playerId, opponentId) => {
+      for (var i = 0; i < cells.length; i++) {
+        cells[i].addEventListener("click", function() {
+          //sendAttack = (coordX, coordY, playerToAttack, currentPlayer) in player.
+          let coordX = this.dataset.coordx;
+          let coordY = this.dataset.coordy;
+
+          console.log(coordX);
+
+          if(this.innerHTML == "x" || this.innerHTML == "s"){
+            $("#" + playerId.name + "Message").innerHTML = playerId.player.deputy(5);
+          }
+          else {
+            playerId.player.sendAttack(coordX,coordY,opponentId, playerId);
+            if(opponentId.gameboard.checkGameOver()){
+              console.log("PLAYER WINS!");
+            }
+            else{
+              renderPlayerView(playerId, opponentId);
+              renderPlayerView(opponentId,playerId);
+              setTimeout(() => {
+                $('#' + playerId.name + 'View').style.display = "none";
+                $('#' + playerId.name + 'Switch').style.display = "block";
+                $('#' + opponentId.name + 'Switch').style.display = "none";
+                console.log(coordX,coordY);
+              },2000);
+              }
+            }
+        });
+      }
+    }
+
+    addEventListenersToCells(player,opponent);
+
   }
 
-  return renderPlayerGameboard(player1);
+  $("#playerOneSwitch").addEventListener("click", function(){
+    $("#playerTwoView").style.display = "block";
+    $("#playerOneSwitch").style.display = "none";
+  });
+  $("#playerTwoSwitch").addEventListener("click", function(){
+    $("#playerOneView").style.display = "block";
+    $("#playerTwoSwitch").style.display = "none";
+  });
+  //Call that function with playerOne to start playerOne's turn.
+
+  renderPlayerView(playerOne, playerTwo);
+  renderPlayerView(playerTwo, playerOne);
+
+  //Allow player to Place Ships. This logic hides and shows the forms.
+
+  const generatePlacementForm = (index, currentPlayer) => {
+    let html = `
+    <form class="${currentPlayer.name}placement">
+      <p>Where should we place the ${currentPlayer.gameboard.shipsArray[index].name}?</p>
+      <label>X Coordinate</label>
+      <input type="number" id="coordX${index}"></input>
+      <label>Y Coordinate</label>
+      <input type="number" id="coordY${index}"></input>
+      <input type="radio" name="orientation" value="h"></input><label>Horizontal</input>
+      <input type="radio" name="orientation" value="v"></input><label>Vertical</input>
+      <input type="submit" value="Place Ship"></input>
+    </form>
+    `
+    $("." + currentPlayer.name + "Form").innerHTML += html;
+  }
+
+  for (i = 0 ; i<playerOne.gameboard.shipsArray.length ; i++){
+    generatePlacementForm(i, playerOne);
+    generatePlacementForm(i,playerTwo);
+  }
+
+  let playerOneForms = document.querySelectorAll(".playerOneplacement");
+  let playerTwoForms = document.querySelectorAll(".playerTwoplacement");
+
+  let formIndex = 1;
+  let newFormIndex = 1;
+
+  const hideForms = () => {
+    for (var i = 0; i < playerOneForms.length; i++) {
+      playerOneForms[i].style.display = "none";
+    }
+    for (var i = 0; i < playerTwoForms.length; i++) {
+      playerTwoForms[i].style.display = "none";
+    }
+  }
+
+  for (var i = 0; i < playerOneForms.length; i++) {
+    playerOneForms[i].addEventListener("submit", (e) => {
+      e.preventDefault();
+      var radios = document.getElementsByName("orientation");
+      var selectedOrientation = "h";
+
+      for(var i = 0; i < radios.length; i++) {
+         if(radios[i].checked)
+             selectedOrientation = radios[i].value;
+       }
+        let coordX = $("#coordX" + formIndex).value;
+        let coordY = $("#coordY" + formIndex).value;
+        if(playerOne.gameboard.placeShip(Number(coordX),Number(coordY),formIndex,selectedOrientation)){
+          renderPlayerView(playerOne, playerTwo);
+          formIndex++;
+          hideForms();
+          playerOneForms[formIndex].style.display = "block";
+          console.log(formIndex);
+        }
+        else {
+          console.log("Not a Valid Placement!");
+        }
+        if(formIndex == 5){
+          console.log("DONE FORMING.");
+          $('#playerTwoView').style.display = "block";
+          $('#playerOneView').style.display = "none";
+          playerTwoForms[newFormIndex].style.display = "block";
+        }
+    });
+  }
+
+  for (var i = 0; i < playerTwoForms.length; i++) {
+    playerTwoForms[i].addEventListener("submit", (e) => {
+      e.preventDefault();
+      var radios = document.getElementsByName("orientation");
+      var selectedOrientation = "h";
+
+      for(var i = 0; i < radios.length; i++) {
+         if(radios[i].checked)
+             selectedOrientation = radios[i].value;
+       }
+        let coordX = $("#coordX" + newFormIndex).value;
+        let coordY = $("#coordY" + newFormIndex).value;
+        if(playerTwo.gameboard.placeShip(Number(coordX),Number(coordY),newFormIndex,selectedOrientation)){
+          renderPlayerView(playerTwo, playerOne);
+          newFormIndex++;
+          hideForms();
+          playerTwoForms[newFormIndex].style.display = "block";
+          console.log(newFormIndex);
+        }
+        else {
+          console.log("Not a Valid Placement!");
+        }
+        if(newFormIndex == 5){
+          console.log("DONE FORMING BOTH SHIP SETS.");
+          $('#playerOneView').style.display = "block";
+          $('#playerTwoView').style.display = "none";
+          hideForms();
+        }
+    });
+  }
+
+  hideForms();
+
+  playerOneForms[formIndex].style.display = "block";
+  $('#playerTwoView').style.display = "none";
+  $('#playerOneSwitch').style.display = "none";
+  $('#playerTwoSwitch').style.display = "none";
+
+  return "Ready";
+
 }
+
+gameLoop();

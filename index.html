@@ -1,7 +1,44 @@
 <html>
 <head>
+  <link href="./styles.css" rel="stylesheet">
 </head>
 <body>
+  <div id="container">
+    <button id="playerOneSwitch">Click to take Player 2's turn.</button>
+    <button id="playerTwoSwitch">Click to take Player 1's turn.</button>
+    <div id="playerOneView">
+      <div id="playerOneConsole" class="console">
+        <div class="firstMate">
+          Hi! I'm Felicia.
+        </div>
+        <div class="messageBox" id="playerOneMessage">
+          I'll be your deputy captain today.
+        </div>
+      </div>
+      <div class="playerOneForm">
+      </div>
+      <div id="playerOneBoard">
+      </div>
+      <div id="playerOneEnemyView">
+      </div>
+    </div>
+    <div id="playerTwoView">
+      <div id="playerTwoConsole" class="console">
+        <div class="firstMate">
+          Hi! I'm Nicolas.
+        </div>
+        <div class="messageBox" id="playerTwoMessage">
+          I'll be your deputy captain today.
+        </div>
+      </div>
+      <div class="playerTwoForm">
+      </div>
+      <div id="playerTwoBoard">
+      </div>
+      <div id="playerTwoEnemyView">
+      </div>
+    </div>
+  </div>
   <script src="./bundle.js" type="text/javascript"></script>
 </body>
 </html>
