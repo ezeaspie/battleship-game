@@ -125,14 +125,14 @@ const gameboardFactory = () => {
     let selectedCoordinates = playerGameboard[coordY][coordX];
       let ship = selectedCoordinates;
       shipsArray[ship].hit();
-      playerGameboard[coordY][coordX] = "x";
+      playerGameboard[coordY][coordX] = "o";
       damageCounter++;
       return [coordX,coordY];
   }
 
   const checkAttackValidity = (coordX, coordY) => {
     let selectedCoordinates = playerGameboard[coordY][coordX];
-    if (selectedCoordinates == "x"){
+    if (selectedCoordinates == "x" || selectedCoordinates == "o"){
       return false;
     }
     else if (selectedCoordinates != ""){
@@ -145,22 +145,6 @@ const gameboardFactory = () => {
   }
 
   const checkGameOver = () => {
-    /*
-    let arrayCheck = [];
-    for(i = 0 ; i<shipsArray.length ; i++){
-      if(shipsArray[i].isSunk()){
-        arrayCheck.push("x");
-      }
-      else {
-        return false;
-      }
-    }
-    if (arrayCheck.length == shipsArray.length){
-      return true;
-    }
-    else {
-      return false;
-    }*/
     if (damageCounter == 15){
       return true;
     }
@@ -177,7 +161,7 @@ const playerFactory = (id) => {
 
   const sendAttack = (coordX, coordY, playerToAttack, currentPlayer, situationVar) => {
 
-    if(playerToAttack.gameboard.playerGameboard[coordY][coordX] == "x" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "s"){
+    if(playerToAttack.gameboard.playerGameboard[coordY][coordX] == "x" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "s" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "o"){
       console.log("you already hit that position.");
       return false;
     }
@@ -295,7 +279,17 @@ const gameLoop = () => {
     for (i=0 ; i<player.gameboard.playerGameboard.length ; i++){
       html += `<div class="row">`
       for (p=0 ; p<player.gameboard.playerGameboard[i].length ; p++){
-        html += `<span class="cell" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.playerGameboard[i][p]}</span>`
+        let className = "";
+        if(player.gameboard.playerGameboard[i][p] == "x"){
+          className = " miss";
+        }
+        if(player.gameboard.playerGameboard[i][p] == "o"){
+          className = " hit";
+        }
+        if(player.gameboard.playerGameboard[i][p] == 1 || player.gameboard.playerGameboard[i][p] == 2 || player.gameboard.playerGameboard[i][p] == 3 || player.gameboard.playerGameboard[i][p] == 4){
+          className = " ship";
+        }
+        html += `<span class="cell${className}" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.playerGameboard[i][p]}</span>`
       }
       html += `</div>`;
     }
@@ -307,7 +301,14 @@ const gameLoop = () => {
     for (i=0 ; i<player.gameboard.enemyGameboard.length ; i++){
       enemyHtml += `<div class="row">`
       for (p=0 ; p<player.gameboard.enemyGameboard[i].length ; p++){
-        enemyHtml += `<span class="cell" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.enemyGameboard[i][p]}</span>`
+        let className = "";
+        if(player.gameboard.enemyGameboard[i][p] == "x"){
+          className = " miss";
+        }
+        if(player.gameboard.enemyGameboard[i][p] == "s"){
+          className = " hit";
+        }
+        enemyHtml += `<span class="cell${className}" data-coordX ="${p}" data-coordY = "${i}">${player.gameboard.enemyGameboard[i][p]}</span>`
       }
       enemyHtml += `</div>`;
     }
@@ -344,9 +345,12 @@ const gameLoop = () => {
               $("#" + opponentId.name + "Over").style.display = "block";
               $("#" + playerId.name + "Message").style.display = "none";
               $("#" + opponentId.name + "Message").style.display = "none";
+              $("#" + playerId.name + "EnemyView").style.display = "none";
+              $("#" + opponentId.name + "EnemyView").style.display = "none";
               renderPlayerView(playerId,opponentId);
               renderPlayerView(opponentId,playerId);
               hideForms();
+              $("#startOver").style.display = "block";
             }
             else{
               renderPlayerView(playerId, opponentId);
@@ -356,7 +360,7 @@ const gameLoop = () => {
                 $('#' + playerId.name + 'Switch').style.display = "block";
                 $('#' + opponentId.name + 'Switch').style.display = "none";
                 console.log(coordX,coordY);
-              },2000);
+              },200);
               }
             }
         });
@@ -390,8 +394,10 @@ const gameLoop = () => {
       <input type="number" id="coordX${index}"></input>
       <label>Y Coordinate</label>
       <input type="number" id="coordY${index}"></input>
+      <fieldset>
       <input type="radio" name="orientation" value="h"></input><label>Horizontal</input>
       <input type="radio" name="orientation" value="v"></input><label>Vertical</input>
+      </fieldset>
       <input type="submit" value="Place Ship"></input>
     </form>
     `
@@ -430,12 +436,13 @@ const gameLoop = () => {
        }
         let coordX = $("#coordX" + formIndex).value;
         let coordY = $("#coordY" + formIndex).value;
+        console.log(coordY,coordX);
         if(playerOne.gameboard.placeShip(Number(coordX),Number(coordY),formIndex,selectedOrientation)){
           renderPlayerView(playerOne, playerTwo);
           formIndex++;
           hideForms();
           $("#playerOneEnemyView").style.display = "none";
-          playerOneForms[formIndex].style.display = "block";
+          playerOneForms[formIndex].style.display = "flex";
           console.log(formIndex);
         }
         else {
@@ -447,7 +454,7 @@ const gameLoop = () => {
           $('#playerTwoView').style.display = "block";
           $("#playerTwoEnemyView").style.display = "none";
           $('#playerOneView').style.display = "none";
-          playerTwoForms[newFormIndex].style.display = "block";
+          playerTwoForms[newFormIndex].style.display = "flex";
         }
     });
   }
@@ -468,7 +475,7 @@ const gameLoop = () => {
           renderPlayerView(playerTwo, playerOne);
           newFormIndex++;
           hideForms();
-          playerTwoForms[newFormIndex].style.display = "block";
+          playerTwoForms[newFormIndex].style.display = "flex";
           console.log(newFormIndex);
         }
         else {
@@ -486,16 +493,20 @@ const gameLoop = () => {
     });
   }
 
+  $("#startOver").addEventListener("click", () => {
+    gameLoop();
+  });
+
   hideForms();
 
-  playerOneForms[formIndex].style.display = "block";
+  playerOneForms[formIndex].style.display = "flex";
   $('#playerTwoView').style.display = "none";
   $('#playerOneSwitch').style.display = "none";
   $('#playerTwoSwitch').style.display = "none";
   $("#playerOneEnemyView").style.display = "none";
+  $("#startOver").style.display = "none";
 
   return "Ready";
 
 }
-
 gameLoop();

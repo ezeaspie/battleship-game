@@ -1,7 +1,92 @@
-.container{
+body {
+  background:#d6ffee;
+}
+
+#container{
   display: flex;
   flex-direction: column;
-  width:100%;
+  align-items:center
+}
+
+.console,
+#playerOneBoard,
+.playerOneForm,
+#playerOneEnemyView,
+#playerTwoBoard,
+.playerTwoForm,
+#playerTwoEnemyView {
+  background:#274141;
+}
+
+.console {
+  display:flex;
+  padding:1em;
+  margin:0 0 2em 0;
+}
+
+.imageFrame {
+  width:6.5em;
+  height:6.5em;
+  padding:.5em .5em 0 .5em;
+  background:#38bc81;
+}
+.image {
+  width:5.5em;
+  height:6em;
+  background:#66339952;
+}
+.helper{
+  background:#1c3535;
+  width:80%;
+  padding:1em;
+}
+
+#deputyFelicia,
+#deputyNicolas{
+  font-weight:bold;
+  font-family:helvetica;
+  font-size:1.2em;
+  margin-bottom:.5em;
+}
+#deputyFelicia,
+#deputyNicolas{
+    color: #61ddaa;
+}
+
+.messageBox,
+.playerOneForm,
+.playerTwoForm{
+  color:#d6ffee;
+  font-size:1em;
+  font-family:calibri;
+}
+
+.playerOnePlacement,
+.playerTwoPlacement {
+  align-items:center;
+  flex-direction:column;
+}
+
+
+#playerOneBoard .cell,
+#playerTwoBoard .cell{
+  border: solid 1px #274141;
+  background:#38bc81;
+}
+
+#playerOneEnemyView .cell,
+#playerTwoEnemyView .cell {
+  border: solid 1px #274141;
+  background:#539d7c;
+}
+
+#playerOneEnemyView .cell:hover,
+#playerTwoEnemyView .cell:hover{
+  background:#375353;
+}
+
+.gameboard{
+  padding:1em;
 }
 
 #playerOne,
@@ -22,17 +107,64 @@
 .cell {
   padding:1em;
   border:solid 1px red;
+  width:1em;
+  height:1em;
+  text-align:center;
 }
 
-#playerOneBoard .cell,
-#playerTwoBoard .cell{
-  border: solid 1px blue;
+.ship {
+  background-image: url(./img/playerOne.png) !important;
+  background-position:center !important;
+  background-size: contain !important;
+  color:#1c3535;
 }
 
-.console{
-  border:solid 1px green;
+.hit {
+  background:#1c3535 url(./img/playerOneHit.png) center !important;
+  background-size: contain !important;
+  color:#38bc81;
 }
 
-.messageBox{
-  border:solid 2px orange;
+#playerOneEnemyView .hit,
+#playerTwoEnemyView .hit {
+  background-image: url(./img/playerOneEnemyHit.png) !important;
+  color:#539d7c;
+}
+
+.miss {
+  background: #61ddaa !important;
+  color: #61ddaa;
+}
+
+button,
+input[type="submit"] {
+  border:solid 2px #61ddaa;
+  border-radius:5px;
+  background:#274141;
+  color:#d6ffee;
+  padding:1em;
+  margin: 0 0 1em;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  background:#61ddaa;
+  color:#274141;
+
+}
+
+fieldset {
+  border:0;
+  margin:1em 0 0 0;
+}
+
+label {
+  margin: .5em 0;
+}
+
+input{
+  background:#d6ffee;
+  border: 0;
+  padding:.7em;
+  color: #274141;
 }
