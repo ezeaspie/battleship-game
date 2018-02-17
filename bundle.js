@@ -174,6 +174,7 @@ const gameboardFactory = () => {
 }
 
 const playerFactory = (id) => {
+
   const sendAttack = (coordX, coordY, playerToAttack, currentPlayer, situationVar) => {
 
     if(playerToAttack.gameboard.playerGameboard[coordY][coordX] == "x" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "s"){
@@ -184,13 +185,13 @@ const playerFactory = (id) => {
       currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "x";
       playerToAttack.gameboard.playerGameboard[coordY][coordX] = "x";
       console.log("miss");
-      return true;
+      return [true,2];
     }
     else {
       playerToAttack.gameboard.recieveAttack(coordX,coordY);
       currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "s";
       console.log("Its a hit!");
-      return true;
+      return [true,3];
     }
   }
 
@@ -201,6 +202,7 @@ const playerFactory = (id) => {
     const enemyHitMessages = ["Looks like we hit something!", "That one was spot on!", "We've hit a ship!"];
     const recieveAttackMessages = ["One of our ships have been hit!","Took some damage on our ships captain.","Critical hit on part of our fleet sir!"];
     const samePosMessages = ["We've already tried there captain.", "Let's try hitting someplace else.", "Last time we shot there we got nothing."];
+    const formErrorMessages = ["We can't place a ship there sir."];
 
     const randomInt = (min,max) => {
       return Math.floor(Math.random()*(max-min+1)+min);
@@ -219,10 +221,13 @@ const playerFactory = (id) => {
       return enemyHitMessages[randomInt(0,2)];
     }
     if(situation == 4){
-      return recieveAttackMessages[randomInt[0,2]];
+      return recieveAttackMessages[randomInt(0,2)];
     }
     if(situation == 5){
       return samePosMessages[randomInt(0,2)];
+    }
+    if(situation == 6){
+      return formErrorMessages[0];
     }
   }
 
@@ -233,6 +238,7 @@ const playerFactory = (id) => {
     const enemyHitMessages = ["Direct hit on one of their ships!", "We got one. Try hitting around there. Might be more ships around.", "Straight into the hull of one of their ships!"];
     const recieveAttackMessages = ["They hit us sir. Let's hit them back.","Enemy got a nice shot on one of our ships.","Careful sir, we just took a cannon to one of our vessels."];
     const samePosMessages = ["We've already hit there. Don't you remember?", "I don't think there's anything there.", "Somewhere else please."];
+    const formErrorMessages = ["We can't place a ship there sir."];
 
     const randomInt = (min,max) => {
       return Math.floor(Math.random()*(max-min+1)+min);
@@ -251,10 +257,13 @@ const playerFactory = (id) => {
       return enemyHitMessages[randomInt(0,2)];
     }
     if(situation == 4){
-      return recieveAttackMessages[randomInt[0,2]];
+      return recieveAttackMessages[randomInt(0,2)];
     }
     if(situation == 5){
       return samePosMessages[randomInt(0,2)];
+    }
+    if(situation == 6){
+      return formErrorMessages[0];
     }
   }
 
@@ -306,6 +315,7 @@ const gameLoop = () => {
     $("#" + player.name + "EnemyView").innerHTML = enemyHtml;
 
     let cells = document.querySelectorAll("#" + player.name + "EnemyView .cell");
+    let currentMessage = "";
 
     const addEventListenersToCells = (playerId, opponentId) => {
       for (var i = 0; i < cells.length; i++) {
@@ -320,9 +330,23 @@ const gameLoop = () => {
             $("#" + playerId.name + "Message").innerHTML = playerId.player.deputy(5);
           }
           else {
-            playerId.player.sendAttack(coordX,coordY,opponentId, playerId);
+            let result = playerId.player.sendAttack(coordX,coordY,opponentId, playerId);
+            console.log(result);
+            $("#" + playerId.name + "Message").innerHTML = playerId.player.deputy(result[1]);
+            if (result[1] === 3) {
+              $("#" + opponentId.name + "Message").innerHTML =opponentId.player.deputy(4);
+            }
             if(opponentId.gameboard.checkGameOver()){
-              console.log("PLAYER WINS!");
+              $("#" + playerId.name + "Over").innerHTML = playerId.player.deputy(0);
+              $("#" + opponentId.name + "Over").innerHTML = opponentId.player.deputy(1);
+              $("#" + opponentId.name + "View").style.display = "block";
+              $("#" + playerId.name + "Over").style.display = "block";
+              $("#" + opponentId.name + "Over").style.display = "block";
+              $("#" + playerId.name + "Message").style.display = "none";
+              $("#" + opponentId.name + "Message").style.display = "none";
+              renderPlayerView(playerId,opponentId);
+              renderPlayerView(opponentId,playerId);
+              hideForms();
             }
             else{
               renderPlayerView(playerId, opponentId);
@@ -410,15 +434,18 @@ const gameLoop = () => {
           renderPlayerView(playerOne, playerTwo);
           formIndex++;
           hideForms();
+          $("#playerOneEnemyView").style.display = "none";
           playerOneForms[formIndex].style.display = "block";
           console.log(formIndex);
         }
         else {
+          $("#playerOneMessage").innerHTML = playerOne.player.deputy(6);
           console.log("Not a Valid Placement!");
         }
         if(formIndex == 5){
           console.log("DONE FORMING.");
           $('#playerTwoView').style.display = "block";
+          $("#playerTwoEnemyView").style.display = "none";
           $('#playerOneView').style.display = "none";
           playerTwoForms[newFormIndex].style.display = "block";
         }
@@ -445,11 +472,14 @@ const gameLoop = () => {
           console.log(newFormIndex);
         }
         else {
+          $("#playerTwoMessage").innerHTML = playerTwo.player.deputy(6);
           console.log("Not a Valid Placement!");
         }
         if(newFormIndex == 5){
           console.log("DONE FORMING BOTH SHIP SETS.");
           $('#playerOneView').style.display = "block";
+          $("#playerOneEnemyView").style.display = "block";
+          $("#playerTwoEnemyView").style.display = "block";
           $('#playerTwoView').style.display = "none";
           hideForms();
         }
@@ -462,6 +492,7 @@ const gameLoop = () => {
   $('#playerTwoView').style.display = "none";
   $('#playerOneSwitch').style.display = "none";
   $('#playerTwoSwitch').style.display = "none";
+  $("#playerOneEnemyView").style.display = "none";
 
   return "Ready";
 
