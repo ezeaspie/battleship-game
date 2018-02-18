@@ -65,6 +65,11 @@ const gameboardFactory = () => {
 
   const placeShip = (coordX, coordY, shipIndex, orien) => {
 
+    coordX--;
+    coordY--;
+
+    console.log(`coordX =${coordX},coordY=${coordY},shipIndex=${shipIndex},orien`);
+
     const checkValidPlacement = (coordinates) => {
       if(coordinates + shipsArray[shipIndex].length-1 < 10){
         for (i=0 ; i<shipsArray[shipIndex].length ; i++){
@@ -81,7 +86,7 @@ const gameboardFactory = () => {
               return false;
             }
             else {
-              return false;
+              continue;
             }
           }
         }
@@ -95,6 +100,7 @@ const gameboardFactory = () => {
     const createShips = (orientation) => {
 
       if (orientation == "h"){
+        console.log("horizonal placement");
         if (checkValidPlacement(coordX)){
           for (i=0 ; i<shipsArray[shipIndex].length ; i++){
             playerGameboard[coordY][coordX + i] = shipIndex;
@@ -106,6 +112,7 @@ const gameboardFactory = () => {
         }
       }
       else {
+        console.log("vertical placement")
         if (checkValidPlacement(coordY)){
           for (i=0 ; i<shipsArray[shipIndex].length ; i++){
             playerGameboard[coordY + i][coordX] = shipIndex;
@@ -275,7 +282,8 @@ const gameLoop = () => {
 
   const renderPlayerView = (player,opponent) => {
     let html = `
-    <div class="gameBoard">`;
+    <div class="gameBoard">
+    <p class="header">Our Territory</p>`;
     for (i=0 ; i<player.gameboard.playerGameboard.length ; i++){
       html += `<div class="row">`
       for (p=0 ; p<player.gameboard.playerGameboard[i].length ; p++){
@@ -297,7 +305,8 @@ const gameLoop = () => {
     $("#" + player.name + "Board").innerHTML = html;
 
     let enemyHtml = `
-    <div class="gameBoard">`;
+    <div class="gameBoard">
+    <p class="header">Their Territory</p>`;
     for (i=0 ; i<player.gameboard.enemyGameboard.length ; i++){
       enemyHtml += `<div class="row">`
       for (p=0 ; p<player.gameboard.enemyGameboard[i].length ; p++){
@@ -355,12 +364,14 @@ const gameLoop = () => {
             else{
               renderPlayerView(playerId, opponentId);
               renderPlayerView(opponentId,playerId);
+              $('#' + playerId.name + 'EnemyView').style.display = "none";
+              $('#' + opponentId.name + 'EnemyView').style.display = "block";
               setTimeout(() => {
                 $('#' + playerId.name + 'View').style.display = "none";
                 $('#' + playerId.name + 'Switch').style.display = "block";
                 $('#' + opponentId.name + 'Switch').style.display = "none";
                 console.log(coordX,coordY);
-              },200);
+              },2000);
               }
             }
         });
@@ -390,10 +401,11 @@ const gameLoop = () => {
     let html = `
     <form class="${currentPlayer.name}placement">
       <p>Where should we place the ${currentPlayer.gameboard.shipsArray[index].name}?</p>
+      <p>Type in coordinates between 1 and 10</p>
       <label>X Coordinate</label>
-      <input type="number" id="coordX${index}"></input>
+      <input type="number" id="coordX${currentPlayer.name + index}"></input>
       <label>Y Coordinate</label>
-      <input type="number" id="coordY${index}"></input>
+      <input type="number" id="coordY${currentPlayer.name + index}"></input>
       <fieldset>
       <input type="radio" name="orientation" value="h"></input><label>Horizontal</input>
       <input type="radio" name="orientation" value="v"></input><label>Vertical</input>
@@ -434,9 +446,9 @@ const gameLoop = () => {
          if(radios[i].checked)
              selectedOrientation = radios[i].value;
        }
-        let coordX = $("#coordX" + formIndex).value;
-        let coordY = $("#coordY" + formIndex).value;
-        console.log(coordY,coordX);
+        let coordX = $("#coordXplayerOne" + formIndex).value;
+        let coordY = $("#coordYplayerOne" + formIndex).value;
+        console.log(coordY,coordX, selectedOrientation);
         if(playerOne.gameboard.placeShip(Number(coordX),Number(coordY),formIndex,selectedOrientation)){
           renderPlayerView(playerOne, playerTwo);
           formIndex++;
@@ -469,8 +481,8 @@ const gameLoop = () => {
          if(radios[i].checked)
              selectedOrientation = radios[i].value;
        }
-        let coordX = $("#coordX" + newFormIndex).value;
-        let coordY = $("#coordY" + newFormIndex).value;
+        let coordX = $(`#coordXplayerTwo${newFormIndex}`).value;
+        let coordY = $(`#coordYplayerTwo${newFormIndex}`).value;
         if(playerTwo.gameboard.placeShip(Number(coordX),Number(coordY),newFormIndex,selectedOrientation)){
           renderPlayerView(playerTwo, playerOne);
           newFormIndex++;

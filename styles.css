@@ -5,7 +5,7 @@ body {
 #container{
   display: flex;
   flex-direction: column;
-  align-items:center
+  align-items:center;
 }
 
 .console,
@@ -16,6 +16,7 @@ body {
 .playerTwoForm,
 #playerTwoEnemyView {
   background:#274141;
+  min-width:500;
 }
 
 .console {
@@ -42,15 +43,14 @@ body {
 }
 
 #deputyFelicia,
-#deputyNicolas{
+#deputyNicolas,
+.header {
   font-weight:bold;
   font-family:helvetica;
   font-size:1.2em;
   margin-bottom:.5em;
-}
-#deputyFelicia,
-#deputyNicolas{
-    color: #61ddaa;
+  color: #61ddaa;
+
 }
 
 .messageBox,
