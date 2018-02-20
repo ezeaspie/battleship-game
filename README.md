@@ -35,7 +35,7 @@ When another player is ready to send an attack, the deputy captain will notify t
 
 Each player's boards are updated every turn to signal a miss or a hit, making it easy to keep track of what spots have been hit before.
 
-##Ending the game
+## Ending the game
 
 The game ends when a player sinks all the opponent ships. When this happens, the screen will show both players' boards and the deputy captains will notify the player that they have won or lost.
 
