@@ -68,8 +68,6 @@ const gameboardFactory = () => {
     coordX--;
     coordY--;
 
-    console.log(`coordX =${coordX},coordY=${coordY},shipIndex=${shipIndex},orien`);
-
     const checkValidPlacement = (coordinates) => {
       if(coordinates + shipsArray[shipIndex].length-1 < 10){
         for (i=0 ; i<shipsArray[shipIndex].length ; i++){
@@ -100,7 +98,6 @@ const gameboardFactory = () => {
     const createShips = (orientation) => {
 
       if (orientation == "h"){
-        console.log("horizonal placement");
         if (checkValidPlacement(coordX)){
           for (i=0 ; i<shipsArray[shipIndex].length ; i++){
             playerGameboard[coordY][coordX + i] = shipIndex;
@@ -112,7 +109,6 @@ const gameboardFactory = () => {
         }
       }
       else {
-        console.log("vertical placement")
         if (checkValidPlacement(coordY)){
           for (i=0 ; i<shipsArray[shipIndex].length ; i++){
             playerGameboard[coordY + i][coordX] = shipIndex;
@@ -169,19 +165,16 @@ const playerFactory = (id) => {
   const sendAttack = (coordX, coordY, playerToAttack, currentPlayer, situationVar) => {
 
     if(playerToAttack.gameboard.playerGameboard[coordY][coordX] == "x" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "s" || playerToAttack.gameboard.playerGameboard[coordY][coordX] == "o"){
-      console.log("you already hit that position.");
       return false;
     }
     else if (playerToAttack.gameboard.playerGameboard[coordY][coordX] == "") {
       currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "x";
       playerToAttack.gameboard.playerGameboard[coordY][coordX] = "x";
-      console.log("miss");
       return [true,2];
     }
     else {
       playerToAttack.gameboard.recieveAttack(coordX,coordY);
       currentPlayer.gameboard.enemyGameboard[coordY][coordX] = "s";
-      console.log("Its a hit!");
       return [true,3];
     }
   }
@@ -334,14 +327,11 @@ const gameLoop = () => {
           let coordX = this.dataset.coordx;
           let coordY = this.dataset.coordy;
 
-          console.log(coordX);
-
           if(this.innerHTML == "x" || this.innerHTML == "s"){
             $("#" + playerId.name + "Message").innerHTML = playerId.player.deputy(5);
           }
           else {
             let result = playerId.player.sendAttack(coordX,coordY,opponentId, playerId);
-            console.log(result);
             $("#" + playerId.name + "Message").innerHTML = playerId.player.deputy(result[1]);
             if (result[1] === 3) {
               $("#" + opponentId.name + "Message").innerHTML =opponentId.player.deputy(4);
@@ -370,8 +360,7 @@ const gameLoop = () => {
                 $('#' + playerId.name + 'View').style.display = "none";
                 $('#' + playerId.name + 'Switch').style.display = "block";
                 $('#' + opponentId.name + 'Switch').style.display = "none";
-                console.log(coordX,coordY);
-              },2000);
+              },3000);
               }
             }
         });
@@ -387,7 +376,11 @@ const gameLoop = () => {
     $("#playerOneSwitch").style.display = "none";
   });
   $("#playerTwoSwitch").addEventListener("click", function(){
-    $("#playerOneView").style.display = "block";
+
+    $('#playerOneView').style.display = "block";
+    $("#playerOneEnemyView").style.display = "block";
+    $("#playerTwoEnemyView").style.display = "block";
+    $('#playerTwoView').style.display = "none";
     $("#playerTwoSwitch").style.display = "none";
   });
   //Call that function with playerOne to start playerOne's turn.
@@ -448,21 +441,17 @@ const gameLoop = () => {
        }
         let coordX = $("#coordXplayerOne" + formIndex).value;
         let coordY = $("#coordYplayerOne" + formIndex).value;
-        console.log(coordY,coordX, selectedOrientation);
         if(playerOne.gameboard.placeShip(Number(coordX),Number(coordY),formIndex,selectedOrientation)){
           renderPlayerView(playerOne, playerTwo);
           formIndex++;
           hideForms();
           $("#playerOneEnemyView").style.display = "none";
           playerOneForms[formIndex].style.display = "flex";
-          console.log(formIndex);
         }
         else {
           $("#playerOneMessage").innerHTML = playerOne.player.deputy(6);
-          console.log("Not a Valid Placement!");
         }
         if(formIndex == 5){
-          console.log("DONE FORMING.");
           $('#playerTwoView').style.display = "block";
           $("#playerTwoEnemyView").style.display = "none";
           $('#playerOneView').style.display = "none";
@@ -488,17 +477,12 @@ const gameLoop = () => {
           newFormIndex++;
           hideForms();
           playerTwoForms[newFormIndex].style.display = "flex";
-          console.log(newFormIndex);
         }
         else {
           $("#playerTwoMessage").innerHTML = playerTwo.player.deputy(6);
-          console.log("Not a Valid Placement!");
         }
         if(newFormIndex == 5){
-          console.log("DONE FORMING BOTH SHIP SETS.");
-          $('#playerOneView').style.display = "block";
-          $("#playerOneEnemyView").style.display = "block";
-          $("#playerTwoEnemyView").style.display = "block";
+          $('#playerTwoSwitch').style.display = "block";
           $('#playerTwoView').style.display = "none";
           hideForms();
         }
